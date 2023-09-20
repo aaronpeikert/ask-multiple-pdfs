@@ -1,5 +1,5 @@
 from langchain.agents import AgentExecutor
-
+import prompts
 from typing import Any, Dict, List, Optional, Tuple, Union
 
 from langchain.agents.tools import InvalidTool
@@ -85,9 +85,8 @@ class CustomExecutor(AgentExecutor):
                     run_manager.on_agent_action(agent_action, color="green")
                 # Otherwise we lookup the tool
                 if isinstance(agent_action, str):
-                    print("!!!!!!!!!!!!!ERROR!!!!!!!!")
                     observation = self.handle_parsing_errors
-                    output = AgentAction("_Exception", observation, "ERROR")
+                    output = AgentAction("_Exception", observation, prompts.parsingError)
                     if run_manager:
                         run_manager.on_agent_action(output, color="green")
                     tool_run_kwargs = self.agent.tool_run_logging_kwargs()

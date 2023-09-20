@@ -15,10 +15,13 @@ from typing import List
 import agentTools as toolbox
 from streamlit.components.v1 import html
 import langchain
+from langfuse.callback import CallbackHandler
 
 def get_conversation_chain(userinput):
-    #langchain.debug = True
-    #Define AgentLLM
+    # Initiate connection to Langfuse
+    handler = CallbackHandler(os.getenv("LANGFUSE_KEY_PUBLIC"), os.getenv("LANGFUSE_KEY_PRIVATE"))
+    # langchain.debug = True # Activate for local debugging
+    # Define AgentLLM
     moderator = AzureChatOpenAI(request_timeout=60,temperature=0.1, model="moderator", deployment_name=os.getenv("OPENAI_MODERATOR_NAME"))
     
     # initiate Toolbox
@@ -47,11 +50,11 @@ def get_conversation_chain(userinput):
     )
 
     # combine agent and Tools for execution
-    agent_executor = CustomExecutor.from_agent_and_tools(agent=agent, tools=tools, verbose=True, memory=st.session_state.conversation)
+    agent_executor = CustomExecutor.from_agent_and_tools(agent=agent, tools=tools, verbose=True, memory=st.session_state.conversation, callbacks=[handler])
     agent_executor.handle_parsing_errors = prompts.parsingError
     # execute
     try:
-        answer = agent_executor.run(input=userinput)
+        answer = agent_executor.run(input=userinput, callbacks=[handler])
     except ValueError as e:
         return e
     return answer

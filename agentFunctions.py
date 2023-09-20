@@ -35,5 +35,5 @@ def report_summarizer(user_input):
     qa_chain = RetrievalQAWithSourcesChain.from_chain_type(summarizer,retriever=st.session_state.reportvectorstore.as_retriever(search_kwargs={"k": 5}))
     
     result = qa_chain({"question": user_input,"handle_parsing_errors":True}, return_only_outputs=True)
-    
+
     return result
